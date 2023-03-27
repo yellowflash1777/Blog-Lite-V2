@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+ 
+    
+<link rel="stylesheet" href="https://mdbcdn.b-cdn.net/wp-content/themes/mdbootstrap4/docs-app/css/dist/mdb5/standard/core.min.css">
+
+
+    <title>Log In | Prashant's Store</title>
+     
+  </head>
+  <body>
+    <section class="pb-4">
+        <div class="bg-white border rounded-5">
+          
+          <section class="w-100 px-4 py-5 vh-100 bg-image"
+            style="background-image: url('https://mdbcdn.b-cdn.net/img/Photos/new-templates/search-box/img4.webp'); border-radius: .5rem .5rem 0 0;">
+            <style>
+              .gradient-custom-3 {
+                /* fallback for old browsers */
+                background: #84fab0;
+      
+                /* Chrome 10-25, Safari 5.1-6 */
+                background: -webkit-linear-gradient(to right, rgba(132, 250, 176, 0.5), rgba(143, 211, 244, 0.5));
+      
+                /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+                background: linear-gradient(to right, rgba(132, 250, 176, 0.5), rgba(143, 211, 244, 0.5))
+              }
+      
+              .gradient-custom-4 {
+                /* fallback for old browsers */
+                background: #84fab0;
+      
+                /* Chrome 10-25, Safari 5.1-6 */
+                background: -webkit-linear-gradient(to right, rgba(132, 250, 176, 1), rgba(143, 211, 244, 1));
+      
+                /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+                background: linear-gradient(to right, rgba(132, 250, 176, 1), rgba(143, 211, 244, 1))
+              }
+            </style>
+            <div class="mask d-flex align-items-center h-100 gradient-custom-3">
+              <div class="container h-100">
+                <div class="row d-flex justify-content-center align-items-center h-100">
+                  <div class="col-12 col-md-9 col-lg-7 col-xl-7">
+                    <div class="card" style="border-radius: 15px;">
+                      <div class="card-body p-5">
+                        <h2 class="text-uppercase text-center mb-5">Log in account</h2>
+      
+                        <form method="post" action="/login_validation">
+                         
+
+                          
+
+                          
+
+                
+      
+                          <div class="form-floating form-outline mb-2">
+                            <input type="text" class="form-control" id="username" name="username" placeholder="username">
+                            <label for="floatingInput">Username</label>
+                          </div>
+                          <div class="form-floating form-outline mb-2">
+                            <input type="password" class="form-control" id="password" name="password" placeholder="Password">
+                            <label for="floatingPassword">Password</label>
+                          </div>
+                
+      
+                          <div class="d-flex justify-content-center">
+                            <button type="submit"
+                              class="btn btn-success btn-block btn-lg gradient-custom-4 text-body">Login</button>
+                          </div>
+      
+                          <p class="text-center text-muted mt-5 mb-0">Don't have an account? <a href="/signup"
+                              class="fw-bold text-body"><u>Sign Up</u></a></p>
+      
+                        </form>
+      
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+          
+          
+          
+         
+          
+          
+          
+        </div>
+      </section>
+
+  </body>
+</html>

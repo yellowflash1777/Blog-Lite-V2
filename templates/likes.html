@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% block title %}Likes{% endblock %}
+{% block username %}
+{{username}}
+{% endblock %}
+{%block style%}
+a:link { text-decoration: none; }
+a:visited { text-decoration: none; }
+a:hover { text-decoration: none; }
+a:active { text-decoration: none; }
+{%endblock%}
+{% block content %}
+<section
+class="w-100 px-4 py-5 vh-100 "
+
+>
+<div class="container h-100">
+<div
+class="row d-flex justify-content-center align-items-center h-100"
+>
+<div class="col-12 col-md-9 col-lg-7 col-xl-7">
+<div class="card" style="border-radius: 15px">
+  <div class="card-body p-5">
+<h3 align="center">Likes</h3>
+<ul class="list-group">
+    {% for like in likes %}
+    <a href="/user/{{like.username}}" class="list-group-item list-group-item-action">{{like.username}}</a>
+    {% endfor %}  
+</ul>
+
+
+{% endblock %}

@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+{% block title %}SEARCH{% endblock %}
+{% block style%}
+<link
+      rel="stylesheet"
+      href="https://mdbcdn.b-cdn.net/wp-content/themes/mdbootstrap4/docs-app/css/dist/mdb5/standard/core.min.css"
+    />
+
+{% endblock %}
+{% block username %}
+{{username}}
+{% endblock %}
+{% block content %}
+    <section
+    class="w-100 px-4 py-5 vh-100 "
+    
+  >
+<div class="container h-100">
+<div
+  class="row d-flex justify-content-center align-items-center h-100"
+>
+  <div class="col-12 col-md-9 col-lg-7 col-xl-7">
+    <div class="card" style="border-radius: 15px">
+      <div class="card-body p-5">
+    <h3 align="center">SEARCH</h3>
+    <form action="/search" method="post" align="center">
+        <input type="search" name="search" placeholder="Search username " align="center">
+        <button type="submit" name="submit-search" align="center">Search</button>
+    </form>
+    {%if users %}
+    <table align="center">
+        <tr>
+            <th>Username</th>
+        </tr>
+        {% for user in users %}
+        {% if user.username != username %}
+        <tr>
+            <td><a href='/user/{{user.username}}' align="center">{{user.username}}</a></td>
+          {% if user.username in following_list %}
+            <td><a href='/unfollow/{{user.username}}' class="link-danger" align="center">Unfollow</a></td>
+          {% else %}
+            <td><a href='/follow/{{user.username}}'  class="link-success" align="center">Follow</a></td>            
+          {% endif %}
+        
+          </tr>
+        {% else %}
+        <tr>
+            <td><a href='/user/{{user.username}}'>{{user.username}}</a></td>
+        </tr>
+        {% endif %}
+        {% endfor %}
+    </table>
+    {% endif %}
+    
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+</section>
+{% endblock %}

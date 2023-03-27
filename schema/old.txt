@@ -1,0 +1,30 @@
+erDiagram
+    users |o--o{ user_posts : ""
+    users{
+        string username
+        string password
+        integer number_of_posts
+        integer number_of_followers
+    }
+    posts |o--o| user_posts : ""
+    posts {
+        integer post_id
+        string Title
+        string Caption
+        string image_url
+        dateFormat Timestamp
+    }
+    feed {
+        string username
+        integer post_id
+    }
+    following {
+        string username
+        string following_username
+    }
+    user_posts {
+        string username
+        integer post_id
+    }
+     feed }o--o{ users : ""
+     following }o--o{ users : ""

@@ -1,0 +1,440 @@
+openapi: 3.0.0
+info:
+  title: Blog Lite
+   
+  version: 1.0.0
+servers:
+  - url: http://127.0.0.1:5000/
+paths:
+  /api/user/{user_id}:
+    description: End point to read, update and delete a user resource with use_id = userID.
+    get:
+      description: Operation to Read user resource.
+      parameters:
+        - in: path
+          name: user_id
+          required: true
+          schema:
+            type: integer
+            example: 201
+      responses:
+        '200':
+          description: Request Successful
+          content:
+            application/json:
+              schema:
+                title: user object
+                type: object
+                properties:
+                  user_id:
+                    type: integer
+                    example: 201
+                  username:
+                    type: string
+                    example: david
+                  password:
+                    type: integer
+                    example: abcdef
+                  number_of_posts:
+                    type: integer
+                    example: 5
+                  number_of_followers:
+                    type: integer
+                    example: 1
+                  number_of_following:
+                    type: integer
+                    example: 1
+        '500':
+          description: Internal Server Error
+        '404':
+          description: user not found
+
+    put:
+      description: Operation to update the user resource.
+      parameters:
+        - in: path
+          name: user_id
+          required: true
+          schema:
+            type: integer
+            example: 201
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+               password:
+                    type: integer
+                    example: abcdef
+                
+      responses:
+        '200':
+          description: Successfuly updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user_id:
+                    type: integer
+                    example: 201
+                  username:
+                    type: string
+                    example: david
+                  password:
+                    type: integer
+                    example: abcdef
+                  number_of_posts:
+                    type: integer
+                    example: 5
+                  number_of_followers:
+                    type: integer
+                    example: 1
+                  number_of_following:
+                    type: integer
+                    example: 1
+        '404':
+          description: user not found
+        '500':
+          description: Internal Server Error
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error_code:
+                    type: string
+                  error_message:
+                    type: string
+    delete:
+      description: Operation to delete the user resource
+      parameters:
+        - in: path
+          name: user_id
+          required: true
+          schema:
+            type: integer
+            example: 201
+      responses:
+        '200':
+          description: Successfully Deleted
+        '404':
+          description: User not found
+        '500':
+          description: Intenal Server Error
+
+  /api/user:
+    description: End point to create user resource
+    post:
+      description: Operation to create the user resource
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                  example: david
+                password:
+                    type: integer
+                    example: abcdef 
+      responses:
+        '201':
+          description: Successfully Created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user_id:
+                    type: integer
+                    example: 201
+                  username:
+                    type: string
+                    example: david
+                  password:
+                    type: integer
+                    example: abcdef
+                  number_of_posts:
+                    type: integer
+                    example: 5
+                  number_of_followers:
+                    type: integer
+                    example: 1
+                  number_of_following:
+                    type: integer
+                    example: 1
+        '409':
+          description: username already exist
+        '500':
+          description: Internal Server Error
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error_code:
+                    type: string
+                  error_message:
+                    type: string
+  /api/post/{post_id}:
+    description: Url to read, update and delete the post resource.
+    get:
+      description: Operation to read post resource
+      parameters:
+        - in: path
+          name: post_id
+          required: true
+          schema:
+            type: integer
+            example: 201
+      responses:
+        '200':
+          description: Request Successful
+          content:
+            application/json:
+              schema:
+                title: post object
+                type: object
+                properties:
+                  post_id:
+                    type: integer
+                    example: 101
+                  username:
+                    type: string
+                    example: Narendra
+                  title:
+                    type: string
+                    example: title
+                  content:
+                    type: string
+                    example: this is content
+                  tmestamp:
+                    type: string
+                    example: Narensdsddra
+                  number_of_likes: 
+                    type: integer 
+                    example: 2
+                  number_of_comments: 
+                    type: integer
+                    example: 3
+                  
+        '500':
+          description: Internal server error
+        '404':
+          description: Student not found
+
+    put:
+      description: Operation to update the post resource
+      parameters:
+        - in: path
+          name: post_id
+          required: true
+          schema:
+            type: integer
+            example: 101
+      requestBody:
+        content:
+          application/json:
+            schema:
+              title: post object
+              type: object
+              properties:
+                title:
+                    type: string
+                    example: title
+                content:
+                    type: string
+                    example: this is content
+                image_url:
+                    type: string
+      responses:
+        '200':
+          description: Successfully updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  post_id:
+                    type: integer
+                    example: 101
+                  username:
+                    type: string
+                    example: Narendra
+                  title:
+                    type: string
+                    example: title
+                  content:
+                    type: string
+                    example: this is content
+                  tmestamp:
+                    type: string
+                    example: Narensdsddra
+                  number_of_likes: 
+                    type: integer 
+                    example: 2
+                  number_of_comments: 
+                    type: integer
+                    example: 3
+        '404':
+          description: Student not found
+        '500':
+          description: Internal Server Error
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error_code:
+                    type: string
+                  error_message:
+                    type: string
+    delete:
+      description: Operation to delete the post resource
+      parameters:
+        - in: path
+          name: post_id
+          required: true
+          schema:
+            type: integer
+            example: 101
+      responses:
+        '200':
+          description: Successfully Deleted
+        '500':
+          description: Internal Server Error
+        '404':
+          description: Student not found
+ 
+    
+  /api/post:
+    description: Url to create post resource
+    post:
+      description: Operation to create the post resource
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                  username:
+                    type: string
+                    example: Narendra
+                  title:
+                    type: string
+                    example: title
+                  content:
+                    type: string
+                    example: this is content
+                  image_url:
+                    type: string
+      responses:
+        '201':
+          description: Successfully Created
+          content:
+            application/json:
+              schema:
+                title: post object
+                type: object
+                properties:
+                  post_id:
+                    type: integer
+                    example: 101
+                  username:
+                    type: string
+                    example: Narendra
+                  title:
+                    type: string
+                    example: title
+                  content:
+                    type: string
+                    example: this is content
+                  tmestamp:
+                    type: string
+                    example: Narensdsddra
+                  number_of_likes: 
+                    type: integer 
+                    example: 2
+                  number_of_comments: 
+                    type: integer
+                    example: 3
+        
+        '500':
+          description: Internal Server Error
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error_code:
+                    type: string
+                  error_message:
+                    type: string
+  
+  /api/feed/{username}:
+    description: Url to get feed for user
+    get:
+      description: Operation to read feed resource
+      parameters:
+        - in: path
+          name: username
+          required: true
+          schema:
+            type: string
+            example: admin
+      responses:
+        '200':
+          description: Request Successful
+          content:
+            application/json:
+              schema:
+                title: post object
+                type: object
+                properties:
+                  posts:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        post_id:
+                          type: integer
+                          example: 101
+                        username:
+                          type: string
+                          example: Narendra
+                        title:
+                          type: string
+                          example: title
+                        content:
+                          type: string
+                          example: this is content
+                        tmestamp:
+                          type: string
+                          example: Narensdsddra
+                        number_of_likes: 
+                          type: integer 
+                          example: 2
+                        number_of_comments: 
+                          type: integer
+                          example: 3
+                          
+                  
+                  
+        '500':
+          description: Internal server error
+        '404':
+          description: user not found
+      
+  
+  

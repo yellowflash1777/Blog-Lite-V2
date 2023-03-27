@@ -1,0 +1,35 @@
+erDiagram
+    
+    users{
+        string username
+        string password
+        integer number_of_posts
+        integer number_of_followers
+    }
+    
+    posts {
+        integer post_id
+        string Title
+        string Caption
+        string image_url
+        dateFormat Timestamp
+        string username
+        inteher likes
+    
+   
+    }
+    following {
+        string username
+        string following_username
+    }
+    comments {
+        integer comment_id
+        string comment
+        string username
+        integer post_id
+
+    }
+    users |o--o{ comments: ""
+    comments |o--o{ posts: ""
+    users |o--o{ posts: ""
+     following }o--o{ users : ""
