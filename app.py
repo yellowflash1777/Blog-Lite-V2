@@ -1,5 +1,6 @@
 import os
 from flask import Flask
+from flask_login import LoginManager
 from flask_restful import Api
 from application import config
 from application.config import LocalDevelopmentConfig
@@ -29,17 +30,26 @@ def create_app():
       app.config.from_object(LocalDevelopmentConfig)
     app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{db_path}'
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+    app.config['SECRET_KEY'] = 'your-secret-key-here'
+    # app.config['LOGIN_URL'] = '/login'
+    
     db.init_app(app) 
     with app.app_context():
-      db.metadata.clear()
+      # db.metadata.clear()
       db.create_all()
     api=Api(app)
     app.app_context().push()
     return app,api
 
 app ,api= create_app()
+login_manager = LoginManager()
+login_manager.init_app(app)
+login_manager.login_view = 'login'
 CORS(app, support_credentials=True)
 
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(int(user_id))
 # Import all the controllers so they are loaded
 from application.controllers import *
 

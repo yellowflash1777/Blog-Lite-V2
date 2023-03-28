@@ -1,49 +1,7 @@
- {% extends 'base.html' %}
-{% block title %}Home{% endblock %}
-{% block username %}
-{{username}}
-{% endblock %}
-{%block style%}
-a:link { text-decoration: none; }
-a:visited { text-decoration: none; }
-a:hover { text-decoration: none; }
-a:active { text-decoration: none; }
-{%endblock%}
+{% extends "base.html" %}
+
 {% block content %}
-<h1 align="center">MY FEED</h1>
-<div class="row row-cols-3 row-cols-md-5 g-2">
-{% for post in posts %}
-
-
-
-  <div class="col" align="center">
-    <div class="card h-100">
-      <div class="card-header">
-        <h5 class="card-author" ><a href="/user/{{post.username}}" class="card-link link-secondary">{{post.username}}</a></h5>
-      </div>
-      <img src="{{post.image_url}}"  height="300" class="card-img-top" alt="...">
-      <div class="card-body">
-        <h5 class="card-title">{{post.title}}</h5>
-        <h7 class="card-text">{{post.content}}</h7><br>
-        <h7 class="card-text">Likes <a href="/likes/{{post.post_id}}/{{username}}" class="card-link link-primary">{{post.number_of_likes}}</a></h7>
-        <h7 class="card-text">Comments <a href="/comment/{{post.post_id}}/{{username}}" class="card-link link-success">{{post.number_of_comments}}</a></h7>
-        {% if post.post_id in liked_list %}
-        <a href="/unlike/{{post.post_id}}/{{username}}"><button type="button" class="btn btn-outline-danger">Unlike</button></a>
-        
-        {% else %}
-        <a href="/like/{{post.post_id}}/{{username}}"><button type="button" class="btn btn-outline-success">Like</button></a>
-        {% endif %}
-        <a href="/comment/{{post.post_id}}/{{username}}"><button type="button" class="btn btn-outline-primary">AddComment</button></a>
-
-      </div>
-      <div class="card-footer">
-        <small class="text-muted">Posted {{timestamp - post.timestamp}} ago</small>
-      </div>
-    </div>
-  </div>
-  {% endfor %}
- </div>
-
-
+  <h1>Welcome to My App!</h1>
+  <p>This is the landing page.</p>
+  <p><a href="{{ url_for('login') }}">Log in</a> or <a href="{{ url_for('register') }}">register</a> to continue.</p>
 {% endblock %}
-
