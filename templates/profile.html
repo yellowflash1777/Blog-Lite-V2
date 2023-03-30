@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <div class="row">
+    <div class="col-md-4">
+      <h2>{{ user.username }}</h2>
+      <p>Number of Posts: </p>
+      <p>Number of Followers: {{ num_followers }}</p>
+      <p>Number of Following: {{ num_following }}</p>
+      {% if current_user.id != user.id %}
+        {% if current_user.is_following(user) %}
+          <form action="{{ url_for('unfollow', user_id=user.id) }}" method="POST">
+            <button type="submit" class="btn btn-danger">Unfollow</button>
+          </form>
+        {% else %}
+          <form action="{{ url_for('follow', user_id=user.id) }}" method="POST">
+            <button type="submit" class="btn btn-primary">Follow</button>
+          </form>
+        {% endif %}
+      {%else%}
+        <a href="{{ url_for('edit_user',user_id=current_user.id) }}" class="btn btn-primary">Edit Profile</a>
+        <a href="{{ url_for('delete_user',user_id=current_user.id) }}" class="btn btn-danger">Delete Profile</a>
+      {% endif %}
+    </div>
+    <div class="col-md-8">
+      <h2>Posts</h2>
+      {% for post in user.posts %}
+        <div class="card mb-3">
+          {% if post.image_url %}
+            <img src="{{ post.image_url }}" class="card-img-top" alt="{{ post.title }}">
+          {% endif %}
+          <div class="card-body">
+            <h5 class="card-title">{{ post.title }}</h5>
+            <p class="card-text">{{ post.content }}</p>
+            <p class="card-text">
+              <small class="text-muted">Posted by {{ post.user.username }} on {{ post.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</small>
+            </p>
+            <a href="{{ url_for('post', post_id=post.id) }}" class="btn btn-primary">View</a>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+{% endblock %}

@@ -1,3 +1,4 @@
+from datetime import datetime
 from .database import db
 from .follow import Follow
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -9,22 +10,46 @@ class User(UserMixin,db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String, unique=True, nullable=False)
     password_hash = db.Column(db.String(128), nullable=False)
-    number_of_posts = db.Column(db.Integer, nullable=False, default=0)
-    number_of_followers = db.Column(db.Integer, nullable=False, default=0)
-    number_of_following = db.Column(db.Integer, nullable=False, default=0)
-    posts = db.relationship('Post', backref='user')
-    comments = db.relationship('Comment', backref='user')
-    likes = db.relationship('Like', backref='user')
+    posts = db.relationship('Post', backref='user', cascade='all,delete')
+    comments = db.relationship('Comment', backref='user', cascade='all,delete')
+    likes = db.relationship('Like', backref='user', cascade='all,delete')
     followers = db.relationship('Follow', foreign_keys=[
                                 Follow.followed_username], backref='followed_user')
     following = db.relationship('Follow', foreign_keys=[
                                 Follow.follower_username], backref='follower_user')
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
+    
+    def change_password(self, old_password, new_password):
+        if self.check_password(old_password):
+            self.password_hash = generate_password_hash(new_password)
+            return True
+        else:
+            return False
 
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
+    
+    def follow(self, user):
+        if not self.is_following(user):
+            follow = Follow(follower_username=self.username,
+                            followed_username=user.username,
+                            timestamp=datetime.utcnow())
+            db.session.add(follow)
+            db.session.commit()
 
+    def unfollow(self, user):
+        follow = Follow.query.filter_by(follower_username=self.username,
+                                         followed_username=user.username).first()
+        if follow:
+            db.session.delete(follow)
+            db.session.commit()
+
+    def is_following(self, user):
+         return self.following and any(f.followed_username == user.username for f in self.following)
+
+    def is_followed_by(self, user):
+        return any(follower.follower_username == user.username for follower in self.followers)
     @classmethod
     def find_by_username(cls, username):
         return cls.query.filter_by(username=username).first()
@@ -43,8 +68,6 @@ class Post(db.Model):
     content = db.Column(db.String)
     timestamp = db.Column(db.DateTime, nullable=False, index=True)
     image_url = db.Column(db.String)
-    number_of_likes = db.Column(db.Integer, nullable=False, default=0)
-    number_of_comments = db.Column(db.Integer, nullable=False, default=0)
     comments = db.relationship('Comment', backref='post', cascade='all,delete')
     likes = db.relationship('Like', backref='post', cascade='all,delete')
 

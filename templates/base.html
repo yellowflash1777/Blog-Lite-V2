@@ -6,8 +6,11 @@
   <body>
     <nav>
       <ul>
-        <li><a href="{{ url_for('index') }}">Home</a></li>
+        
         {% if current_user.is_authenticated %}
+          <li><a href="{{ url_for('index') }}">Home</a></li>
+          <li><a href="{{ url_for('search') }}">Search</a></li>
+          <li><a href="{{ url_for('profile',user_id=current_user.id) }}">Profile</a></li>
           <li><a href="{{ url_for('logout') }}">Log Out</a></li>
         {% else %}
           <li><a href="{{ url_for('login') }}">Log In</a></li>
