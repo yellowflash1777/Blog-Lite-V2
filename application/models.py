@@ -14,9 +14,9 @@ class User(UserMixin,db.Model):
     comments = db.relationship('Comment', backref='user', cascade='all,delete')
     likes = db.relationship('Like', backref='user', cascade='all,delete')
     followers = db.relationship('Follow', foreign_keys=[
-                                Follow.followed_username], backref='followed_user')
+                                Follow.followed_user_id], backref='followed_user')
     following = db.relationship('Follow', foreign_keys=[
-                                Follow.follower_username], backref='follower_user')
+                                Follow.follower_user_id], backref='follower_user')
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
     
@@ -32,24 +32,28 @@ class User(UserMixin,db.Model):
     
     def follow(self, user):
         if not self.is_following(user):
-            follow = Follow(follower_username=self.username,
-                            followed_username=user.username,
+            follow = Follow(follower_user_id=self.id,
+                            followed_user_id=user.id,
                             timestamp=datetime.utcnow())
             db.session.add(follow)
             db.session.commit()
 
     def unfollow(self, user):
-        follow = Follow.query.filter_by(follower_username=self.username,
-                                         followed_username=user.username).first()
+        follow = Follow.query.filter_by(follower_user_id=self.id,
+                            followed_user_id=user.user.id).first()
         if follow:
             db.session.delete(follow)
             db.session.commit()
 
     def is_following(self, user):
-         return self.following and any(f.followed_username == user.username for f in self.following)
+         return self.following and any(f.followed_user_id == user.id for f in self.following)
 
     def is_followed_by(self, user):
-        return any(follower.follower_username == user.username for follower in self.followers)
+        return any(follower.follower_user_id == user.id for follower in self.followers)
+    
+    def is_liking(self, post):
+        return Like.query.filter_by(user_id=self.id, post_id=post.id).first() is not None
+
     @classmethod
     def find_by_username(cls, username):
         return cls.query.filter_by(username=username).first()
@@ -62,8 +66,8 @@ class User(UserMixin,db.Model):
 class Post(db.Model):
     __tablename__ = "posts"
     id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String, db.ForeignKey(
-        "users.username"), nullable=False, index=True)
+    user_id= db.Column(db.String, db.ForeignKey(
+        "users.id"), nullable=False, index=True)
     title = db.Column(db.String, nullable=False)
     content = db.Column(db.String)
     timestamp = db.Column(db.DateTime, nullable=False, index=True)
@@ -77,8 +81,8 @@ class Comment(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     post_id = db.Column(db.Integer, db.ForeignKey(
         "posts.id"), nullable=False, index=True)
-    username = db.Column(db.String, db.ForeignKey(
-        "users.username"), nullable=False, index=True)
+    user_id = db.Column(db.String, db.ForeignKey(
+        "users.id"), nullable=False, index=True)
     comment = db.Column(db.String, nullable=False)
     timestamp = db.Column(db.DateTime, nullable=False, index=True)
 
@@ -88,8 +92,8 @@ class Like(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     post_id = db.Column(db.Integer, db.ForeignKey(
         "posts.id"), nullable=False, index=True)
-    username = db.Column(db.String, db.ForeignKey(
-        "users.username"), nullable=False, index=True)
+    user_id = db.Column(db.String, db.ForeignKey(
+        "users.id"), nullable=False, index=True)
     timestamp = db.Column(db.DateTime, nullable=False, index=True)
 
 

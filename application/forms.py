@@ -1,7 +1,11 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, BooleanField, SubmitField
+from wtforms import StringField, PasswordField, BooleanField, SubmitField, TextAreaField
 from wtforms.validators import DataRequired, Email, EqualTo, ValidationError ,Length
 from .models import User
+from flask_wtf.file import FileField, FileAllowed
+from app import photos
+
+
 
 class LoginForm(FlaskForm):
     username = StringField('Username', validators=[DataRequired()])
@@ -33,3 +37,10 @@ class EditUserForm(FlaskForm):
     old_password = PasswordField('Old Password', validators=[DataRequired()])
     new_password = PasswordField('New Password', validators=[DataRequired()])
     submit = SubmitField('Update')
+
+
+class AddPostForm(FlaskForm):
+    title = StringField('Title', validators=[DataRequired(), Length(max=100)])
+    content = TextAreaField('Content', validators=[DataRequired()])
+    image = FileField('Image', validators=[FileAllowed(photos, 'Images only!')])
+    submit = SubmitField('Post')

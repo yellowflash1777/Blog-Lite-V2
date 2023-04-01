@@ -6,8 +6,10 @@ from application import config
 from application.config import LocalDevelopmentConfig
 from application.database import db
 from flask_cors import CORS
+from flask_uploads import UploadSet, IMAGES, configure_uploads
 from application.models import User, Post, Comment, Like
 from application.follow import Follow
+from flask_migrate import Migrate
 
 app = None
 api = None
@@ -16,13 +18,14 @@ api = None
 basedir = os.path.abspath(os.path.dirname(__file__))
 db_path = os.path.join(basedir, 'db_directory/database.db')
 
-UPLOAD_FOLDER = 'uploads\posts'
 
 
 
 def create_app():  
     app = Flask(__name__, template_folder="templates")
-    app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+    
+    app.config['UPLOADED_PHOTOS_DEST'] = 'static/img/uploads'
+    
     if os.getenv('ENV', "development") == "production":
       raise Exception("Currently no production config is setup.")
     else:
@@ -35,7 +38,7 @@ def create_app():
     
     db.init_app(app) 
     with app.app_context():
-      # db.metadata.clear()
+      #db.metadata.clear()
       db.create_all()
     api=Api(app)
     app.app_context().push()
@@ -46,6 +49,10 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
 CORS(app, support_credentials=True)
+photos = UploadSet('photos', IMAGES)
+configure_uploads(app, photos)
+migrate = Migrate(app, db)
+
 
 @login_manager.user_loader
 def load_user(user_id):

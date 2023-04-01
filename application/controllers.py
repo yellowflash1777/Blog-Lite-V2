@@ -1,10 +1,15 @@
-from flask import render_template, flash, redirect, request, url_for
+from datetime import datetime
+import os
+from flask import abort, render_template, flash, redirect, request, url_for
 from flask_login import current_user, login_user, logout_user, login_required
 from app import app, db
-from .forms import EditUserForm, LoginForm, RegistrationForm
-from .models import User
+from .forms import AddPostForm, EditUserForm, LoginForm, RegistrationForm
+from .models import Comment, Like, Post, User
 from .follow import Follow
+from werkzeug.utils import secure_filename
 
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
+MAX_FILE_SIZE = 5 * 1024 * 1024  # 5MB
 
 
 @app.route('/')
@@ -95,8 +100,8 @@ def profile(user_id):
     is_following = current_user.is_authenticated and current_user.is_following(user)
     is_followed_by = current_user.is_followed_by(user)
 
-    num_followers = Follow.query.filter_by(followed_username=user.username).count()
-    num_following = Follow.query.filter_by(follower_username=user.username).count()
+    num_followers = Follow.query.filter_by(followed_user_id=user.id).count()
+    num_following = Follow.query.filter_by(follower_user_id=user.id).count()
 
     return render_template('profile.html', user=user, is_following=is_following, is_followed_by=is_followed_by, num_followers=num_followers, num_following=num_following)
 
@@ -138,6 +143,100 @@ def unfollow(user_id):
     current_user.unfollow(user_to_unfollow)
     flash(f'You have unfollowed {user_to_unfollow.username}', 'success')
     return redirect(url_for('profile', user_id=user_to_unfollow.id))
+
+@app.route('/add_post', methods=['GET', 'POST'])
+@login_required
+def add_post():
+    form = AddPostForm()
+    if form.validate_on_submit():
+        # Save the image file to the specified directory
+        file = form.image.data
+        if file:
+            if file.content_length > MAX_FILE_SIZE:
+                flash('File size exceeds the limit of 5MB.', 'error')
+                return redirect(request.url)
+            if not allowed_file(file.filename):
+                flash('Invalid file type. Allowed types are png, jpg, jpeg, and gif.', 'error')
+                return redirect(request.url)
+            filename = secure_filename(file.filename)
+            file.save(os.path.join(app.config['UPLOADED_PHOTOS_DEST'], filename))
+        else:
+            filename = None
+        
+        timestamp = datetime.utcnow()
+        post = Post(title=form.title.data, content=form.content.data, 
+                    image_url=filename, user=current_user , timestamp=timestamp)
+        db.session.add(post)
+        db.session.commit()
+        flash('Your post has been created!', 'success')
+        return redirect(url_for('index'))
+    return render_template('add_post.html', title='New Post', form=form)
+    
+def allowed_file(filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+@app.route('/post/<int:post_id>')
+def view_post(post_id):
+    # Retrieve the post from the database
+    post = Post.query.get_or_404(post_id)
+    # Retrieve the post's comments from the database
+    comments = Comment.query.filter_by(post=post).all()
+    # Retrieve the post's likes from the database
+    likes = Like.query.filter_by(post=post).all()
+    # Render the view_post.html template with the post, comments, and likes
+    return render_template('view_post.html', post=post, comments=comments, likes=likes)
+
+@app.route('/edit_post/<int:post_id>', methods=['GET', 'POST'])
+@login_required
+def edit_post(post_id):
+    post = Post.query.get_or_404(post_id)
+    form = AddPostForm()
+    if form.validate_on_submit():
+        # Save the image file to the specified directory
+        file = form.image.data
+        if file:
+            if file.content_length > MAX_FILE_SIZE:
+                flash('File size exceeds the limit of 5MB.', 'error')
+                return redirect(request.url)
+            if not allowed_file(file.filename):
+                flash('Invalid file type. Allowed types are png, jpg, jpeg, and gif.', 'error')
+                return redirect(request.url)
+            filename = secure_filename(file.filename)
+            file.save(os.path.join(app.config['UPLOADED_PHOTOS_DEST'], filename))
+        else:
+            filename = post.image_url
+        
+        post.title = form.title.data
+        post.content = form.content.data
+        post.image_url = filename
+        db.session.commit()
+        flash('Your post has been updated!', 'success')
+        return redirect(url_for('post', post_id=post.id))
+    return render_template('edit_post.html', title='Edit Post', form=form, post=post)
+
+@app.route('/delete_post/<int:post_id>', methods=['POST'])
+@login_required
+def delete_post(post_id):
+    post = Post.query.get_or_404(post_id)
+    
+    
+    if post.username != current_user.username:
+        abort(403) # Forbidden
+    
+    # Delete the image file from the file system
+    if post.image_url:
+        try:
+            os.remove(os.path.join(app.config['UPLOADED_PHOTOS_DEST'], post.image_url))
+        except OSError:
+            pass
+    
+    # Delete the post from the database
+    db.session.delete(post)
+    db.session.commit()
+    flash('Your post has been deleted!', 'success')
+    return redirect(url_for('index'))
+
 
 
 # @app.route('/add_post', methods=['GET', 'POST'])
