@@ -11,11 +11,12 @@ from werkzeug.utils import secure_filename
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 MAX_FILE_SIZE = 5 * 1024 * 1024  # 5MB
 
-
 @app.route('/')
-@login_required
 def index():
-    return redirect(url_for('home'))
+    if current_user.is_authenticated:
+        return redirect(url_for('home'))
+    else:
+        return render_template('index.html')
 
 @app.route('/home')
 @login_required
@@ -99,11 +100,11 @@ def profile(user_id):
         return redirect(url_for('index'))
     is_following = current_user.is_authenticated and current_user.is_following(user)
     is_followed_by = current_user.is_followed_by(user)
-
+    num_posts = Post.query.filter_by(user_id=user.id).count()
     num_followers = Follow.query.filter_by(followed_user_id=user.id).count()
     num_following = Follow.query.filter_by(follower_user_id=user.id).count()
 
-    return render_template('profile.html', user=user, is_following=is_following, is_followed_by=is_followed_by, num_followers=num_followers, num_following=num_following)
+    return render_template('profile.html', user=user, is_following=is_following, is_followed_by=is_followed_by, num_followers=num_followers, num_following=num_following, num_posts=num_posts)
 
 
 
@@ -185,6 +186,7 @@ def view_post(post_id):
     # Retrieve the post's likes from the database
     likes = Like.query.filter_by(post=post).all()
     form=CommentForm()
+    # print(len(post.likes))
     # print(current_user.is_following(post.user))
     # Render the view_post.html template with the post, comments, and likes
     return render_template('view_post.html', post=post, comments=comments, likes=likes,form=form)
@@ -285,24 +287,26 @@ def add_comment(post_id):
         return redirect(url_for('view_post', post_id=post_id))
     return render_template('view_post.html', post=post, form=form)
 
-# @app.route('/add_post', methods=['GET', 'POST'])
-# @login_required
-# def add_post():
-#     form = AddPostForm()
-#     if form.validate_on_submit():
-#         # Save image to server
-#         image = form.image.data
-#         image_filename = secure_filename(image.filename)
-#         image_path = os.path.join(app.config['UPLOAD_FOLDER'], image_filename)
-#         image.save(image_path)
+@app.route('/post/<int:post_id>/likes')
+@login_required
+def post_likes(post_id):
+    post = Post.query.get_or_404(post_id)
+    likers = post.likes
+    print(likers[0].user)
+    return render_template('post_likes.html', post=post, likers=likers)
 
-#         # Create new post
-#         post = Post(title=form.title.data, content=form.content.data, image=image_filename, author=current_user)
-#         db.session.add(post)
-#         db.session.commit()
+@app.route('/followers/<int:user_id>')
+@login_required
+def followers(user_id):
+    user = User.query.get_or_404(user_id)
+    followers = user.followers
+    # print(followers[0].follower_user.username)
+    return render_template('followers.html', user=user, followers=followers)
 
-#         flash('Your post has been created!', 'success')
-#         return redirect(url_for('post', post_id=post.id))
-
-#     return render_template('add_post.html', title='Add Post', form=form)
+@app.route('/following/<int:user_id>')
+@login_required
+def following(user_id):
+    user = User.query.get_or_404(user_id)
+    following = user.following
+    return render_template('following.html', user=user, following=following)
 

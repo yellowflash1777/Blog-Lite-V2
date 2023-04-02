@@ -1,44 +1,75 @@
 {% extends "base.html" %}
 
 {% block content %}
-  <div class="row">
-    <div class="col-md-4">
-      <h2>{{ user.username }}</h2>
-      <p>Number of Posts: </p>
-      <p>Number of Followers: {{ num_followers }}</p>
-      <p>Number of Following: {{ num_following }}</p>
-      {% if current_user.id != user.id %}
-        {% if current_user.is_following(user) %}
-          <form action="{{ url_for('unfollow', user_id=user.id) }}" method="POST">
-            <button type="submit" class="btn btn-danger">Unfollow</button>
-          </form>
-        {% else %}
-          <form action="{{ url_for('follow', user_id=user.id) }}" method="POST">
-            <button type="submit" class="btn btn-primary">Follow</button>
-          </form>
-        {% endif %}
-      {%else%}
-        <a href="{{ url_for('edit_user',user_id=current_user.id) }}" class="btn btn-primary">Edit Profile</a>
-        <a href="{{ url_for('delete_user',user_id=current_user.id) }}" class="btn btn-danger">Delete Profile</a>
-      {% endif %}
-    </div>
-    <div class="col-md-8">
-      <h2>Posts</h2>
-      {% for post in user.posts %}
-        <div class="card mb-3">
-          {% if post.image_url %}
-            <img src="/static/img/uploads/{{ post.image_url }}" class="card-img-top" alt="{{post.title}}">
+<div class="container-fluid">
+  <div class="row mt-5 justify-content-center">
+    <div class="col-md-6 col-lg-5">
+      <div class="card bg-light">
+        <div class="card-header bg-white pb-0 border-0">
+          <h2 class="text-center">{{ user.username }}</h2>
+        </div>
+        <div class="card-body text-center">
+          <p class="card-text mb-3">
+            <span class="text-muted">Number of Posts:</span>
+            {{ num_posts }}
+          </p>
+          <p class="card-text mb-3">
+            <span class="text-muted">Number of Followers:</span>
+            <a href="{{ url_for('followers', user_id=user.id) }}">
+              {{ num_followers }}
+            </a>
+          </p>
+          <p class="card-text mb-4">
+            <span class="text-muted">Number of Following:</span>
+            <a href="{{ url_for('following', user_id=user.id) }}">
+            {{ num_following }}
+          </p>
+          {% if current_user.id != user.id %}
+          <div class="d-flex justify-content-center mb-4">
+            {% if current_user.is_following(user) %}
+            <form action="{{ url_for('unfollow', user_id=user.id) }}" method="POST">
+              <button type="submit" class="btn btn-danger">Unfollow</button>
+            </form>
+            {% else %}
+            <form action="{{ url_for('follow', user_id=user.id) }}" method="POST">
+              <button type="submit" class="btn btn-primary">Follow</button>
+            </form>
+            {% endif %}
+          </div>
+          {% else %}
+          <div class="d-flex justify-content-center mb-4">
+            <a href="{{ url_for('edit_user', user_id=current_user.id) }}" class="btn btn-primary mr-2">Edit Profile</a>
+            <a href="{{ url_for('delete_user', user_id=current_user.id) }}" class="btn btn-danger">Delete Profile</a>
+          </div>
           {% endif %}
-          <div class="card-body">
-            <h5 class="card-title">{{ post.title }}</h5>
-            <p class="card-text">{{ post.content }}</p>
-            <p class="card-text">
-              <small class="text-muted">Posted by {{ post.user.username }} on {{ post.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</small>
-            </p>
-            <a href="{{ url_for('view_post', post_id=post.id) }}" class="btn btn-primary">View</a>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-6 col-lg-7">
+      <h2 class="text-center mb-4">Posts</h2>
+      <div class="row">
+        {% for post in user.posts %}
+        <div class="col-md-6 col-lg-4 mb-4">
+          <div class="card shadow-sm h-100">
+            {% if post.image_url %}
+            <img src="/static/img/uploads/{{ post.image_url }}" class="card-img-top" alt="{{ post.title }}">
+            {% else %}
+            <div class="card-img-top bg-secondary text-white py-5">
+              <h3 class="text-center mb-0">{{ post.title }}</h3>
+            </div>
+            {% endif %}
+            <div class="card-body d-flex flex-column justify-content-between">
+              <p class="card-text">{{ post.content }}</p>
+              <div class="d-flex justify-content-between align-items-center">
+                <small class="text-muted">{{ post.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</small>
+                <a href="{{ url_for('view_post', post_id=post.id) }}" class="btn btn-sm btn-primary">View</a>
+              </div>
+            </div>
           </div>
         </div>
-      {% endfor %}
+        {% endfor %}
+      </div>
     </div>
   </div>
+</div>
 {% endblock %}

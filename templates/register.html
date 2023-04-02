@@ -1,27 +1,51 @@
+
 {% extends "base.html" %}
 
 {% block title %}Register{% endblock %}
 
 {% block content %}
-  <h1>Register</h1>
-  <form method="POST">
-    {{ form.hidden_tag() }}
-    <p>
-      {{ form.username.label }}<br>
-      {{ form.username() }}
-    </p>
-    
-    <p>
-      {{ form.password.label }}<br>
-      {{ form.password() }}
-    </p>
-    <p>
-      {{ form.password2.label }}<br>
-      {{ form.password2() }}
-    </p>
-    <p>{{ form.submit() }}</p>
-  </form>
+
+<div class="container">
+  <div class="row justify-content-center mt-5">
+    <div class="col-md-6">
+      <div class="card shadow-lg border-0 rounded-lg">
+        <div class="card-header">
+          <h3 class="text-center font-weight-light my-4">Register</h3>
+        </div>
+        <div class="card-body">
+          <form method="POST">
+            {{ form.hidden_tag() }}
+            <div class="form-group">
+              {{ form.username.label(class="small mb-1") }}
+              {{ form.username(class="form-control py-4", placeholder="Username") }}
+              {% for error in form.username.errors %}
+              <span class="small text-danger">{{ error }}</span>
+              {% endfor %}
+            </div>
+            <div class="form-group">
+              {{ form.password.label(class="small mb-1") }}
+              {{ form.password(class="form-control py-4", placeholder="Password") }}
+              {% for error in form.password.errors %}
+              <span class="small text-danger">{{ error }}</span>
+              {% endfor %}
+            </div>
+            <div class="form-group">
+              {{ form.password2.label(class="small mb-1") }}
+              {{ form.password2(class="form-control py-4", placeholder="Confirm Password") }}
+              {% for error in form.password2.errors %}
+              <span class="small text-danger">{{ error }}</span>
+              {% endfor %}
+            </div>
+            <div class="form-group d-flex align-items-center justify-content-between mt-4 mb-0">
+              {{ form.submit(class="btn btn-primary px-4 py-2") }}
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
   {% for message in get_flashed_messages() %}
     <div class="flash">{{ message }}</div>
   {% endfor %}
+</div>
 {% endblock %}

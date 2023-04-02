@@ -1,25 +1,31 @@
 {% extends "base.html" %} {% block content %}
 <div class="row">
   <div class="col-md-8">
-    <h1>{{ post.title }}</h1>
-    <p class="lead">By {{ post.user.username }}</p>
+    <h1 class="mb-4">{{ post.title }}</h1>
+    <p class="lead mb-4">By {{ post.user.username }}</p>
     <hr />
     {% if post.image_url %}
     <img
       src="/static/img/uploads/{{post.image_url }}"
       alt="{{ post.title }}"
-      class="img-fluid rounded"
+      class="img-fluid rounded mb-2"
+      width="800"
+      height="400"
     />
     {% endif %}
-    <p>{{ post.content }}</p>
+    <p class="mb-4">{{ post.content }}</p>
     <p class="text-muted">
       <small>{{ post.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</small>
+    </p>
+    <p class="text-muted">
+        <small><a href="{{ url_for('post_likes', post_id=post.id) }}">{{ post.likes | length }} </a>likes</small>
+        <small>{{ post.comments |length }} comments</small>
     </p>
   </div>
   <div class="col-md-4">
     <div class="card">
       <div class="card-body">
-        <h5 class="card-title">Actions</h5>
+        <h5 class="card-title mb-4">Actions</h5>
         {% if current_user == post.user %}
         <a
           href="{{ url_for('edit_post', post_id=post.id) }}"
@@ -31,7 +37,13 @@
           method="POST"
         >
           <input type="hidden" name="_method" value="DELETE" />
-          <button type="submit" class="btn btn-danger btn-block">Delete</button>
+          <button
+            type="submit"
+            class="btn btn-danger btn-block"
+            onclick="return confirm('Are you sure you want to delete this post?')"
+          >
+            Delete
+          </button>
         </form>
         {% else %} {% if current_user.is_following(post.user) %}
         <form
@@ -39,7 +51,7 @@
           method="POST"
         >
           <input type="hidden" name="_method" value="PUT" />
-          <button type="submit" class="btn btn-danger btn-block">
+          <button type="submit" class="btn btn-danger btn-block mb-2">
             Unfollow {{ post.user.username }}
           </button>
         </form>
@@ -49,7 +61,7 @@
           method="POST"
         >
           <input type="hidden" name="_method" value="PUT" />
-          <button type="submit" class="btn btn-primary btn-block">
+          <button type="submit" class="btn btn-primary btn-block mb-2">
             Follow {{ post.user.username }}
           </button>
         </form>
@@ -60,7 +72,9 @@
           method="POST"
         >
           <input type="hidden" name="_method" value="PUT" />
-          <button type="submit" class="btn btn-danger btn-block">Unlike</button>
+          <button type="submit" class="btn btn-danger btn-block mb-4">
+            Unlike
+          </button>
         </form>
         {% else %}
         <form
@@ -68,16 +82,18 @@
           method="POST"
         >
           <input type="hidden" name="_method" value="PUT" />
-          <button type="submit" class="btn btn-primary btn-block">Like</button>
+          <button type="submit" class="btn btn-primary btn-block mb-4">
+            Like
+          </button>
         </form>
         {% endif %}
-
         <div class="card mt-3">
           <div class="card-body">
             <h5 class="card-title">Comments</h5>
             {% for comment in post.comments %}
             <p class="mb-1">
-              {{ comment.user.username }}: {{ comment.comment }} : {{ comment.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}
+              {{ comment.user.username }}: {{ comment.comment }} : {{
+              comment.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}
             </p>
             {% endfor %}
             <h1>Add a Comment</h1>

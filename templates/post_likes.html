@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1>Likes for {{ post.title }}</h1>
+<ul>
+{% for liker in likers %}
+<li>{{ liker.user.username }}</li>
+{% endfor %}
+</ul>
+{% endblock %}
