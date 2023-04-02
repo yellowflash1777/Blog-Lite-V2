@@ -7,6 +7,8 @@ from application.config import LocalDevelopmentConfig
 from application.database import db
 from flask_cors import CORS
 from flask_uploads import UploadSet, IMAGES, configure_uploads
+
+
 from application.models import User, Post, Comment, Like
 from application.follow import Follow
 from flask_migrate import Migrate
@@ -51,7 +53,6 @@ login_manager.login_view = 'login'
 CORS(app, support_credentials=True)
 photos = UploadSet('photos', IMAGES)
 configure_uploads(app, photos)
-migrate = Migrate(app, db)
 
 
 @login_manager.user_loader
