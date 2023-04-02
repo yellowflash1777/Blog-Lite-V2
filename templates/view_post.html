@@ -6,7 +6,7 @@
     <hr />
     {% if post.image_url %}
     <img
-      src="{{ url_for('static', filename='uploads/' + post.image_url) }}"
+      src="/static/img/uploads/{{post.image_url }}"
       alt="{{ post.title }}"
       class="img-fluid rounded"
     />
@@ -33,7 +33,27 @@
           <input type="hidden" name="_method" value="DELETE" />
           <button type="submit" class="btn btn-danger btn-block">Delete</button>
         </form>
-        {% endif %} {% if current_user.is_authenticated %} {% if
+        {% else %} {% if current_user.is_following(post.user) %}
+        <form
+          action="{{ url_for('unfollow', user_id=post.user.id) }}"
+          method="POST"
+        >
+          <input type="hidden" name="_method" value="PUT" />
+          <button type="submit" class="btn btn-danger btn-block">
+            Unfollow {{ post.user.username }}
+          </button>
+        </form>
+        {% else %}
+        <form
+          action="{{ url_for('follow', user_id=post.user.id) }}"
+          method="POST"
+        >
+          <input type="hidden" name="_method" value="PUT" />
+          <button type="submit" class="btn btn-primary btn-block">
+            Follow {{ post.user.username }}
+          </button>
+        </form>
+        {% endif %} {% endif %} {% if current_user.is_authenticated %} {% if
         current_user.is_liking(post) %}
         <form
           action="{{ url_for('unlike_post', post_id=post.id) }}"
@@ -50,57 +70,40 @@
           <input type="hidden" name="_method" value="PUT" />
           <button type="submit" class="btn btn-primary btn-block">Like</button>
         </form>
-        {% endif %} {% if current_user.is_following(post.user) %}
-        <form
-          action="{{ url_for('unfollow_user', username=post.user.username) }}"
-          method="POST"
-        >
-          <input type="hidden" name="_method" value="PUT" />
-          <button type="submit" class="btn btn-danger btn-block">
-            Unfollow {{ post.user.username }}
-          </button>
-        </form>
-        {% else %}
-        <form
-          action="{{ url_for('follow_user', username=post.user.username) }}"
-          method="POST"
-        >
-          <input type="hidden" name="_method" value="PUT" />
-          <button type="submit" class="btn btn-primary btn-block">
-            Follow {{ post.user.username }}
-          </button>
-        </form>
-        {% endif %} {% endif %}
-      </div>
-    </div>
-    <div class="card mt-3">
-      <div class="card-body">
-        <h5 class="card-title">Comments</h5>
-        {% for comment in post.comments %}
-        <p class="mb-0">
-          <strong>{{ comment.user.username }}</strong> {{ comment.body }}
-        </p>
-        <p class="text-muted">
-          <small>{{ comment.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</small>
-        </p>
-        <hr />
-        {% endfor %} {% if current_user.is_authenticated %}
-        <form
-          action="{{ url_for('add_comment', post_id=post.id) }}"
-          method="POST"
-        >
-          <div class="form-group">
-            <textarea
-              name="body"
-              rows="3"
-              placeholder="Comment"
-              class="form-control"
-            ></textarea>
+        {% endif %}
+
+        <div class="card mt-3">
+          <div class="card-body">
+            <h5 class="card-title">Comments</h5>
+            {% for comment in post.comments %}
+            <p class="mb-1">
+              {{ comment.user.username }}: {{ comment.comment }} : {{ comment.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}
+            </p>
+            {% endfor %}
+            <h1>Add a Comment</h1>
+            <form
+              action="{{ url_for('add_comment', post_id=post.id) }}"
+              method="post"
+            >
+              {{ form.hidden_tag() }}
+              <div class="form-group">
+                {{ form.comment.label(class="form-control-label") }} {% if
+                form.comment.errors %} {{ form.comment(class="form-control
+                form-control-lg is-invalid") }}
+                <div class="invalid-feedback">
+                  {% for error in form.comment.errors %}
+                  <span>{{ error }}</span>
+                  {% endfor %}
+                </div>
+                {% else %} {{ form.comment(class="form-control form-control-lg")
+                }} {% endif %}
+              </div>
+              <div class="form-group">
+                {{ form.submit(class="btn btn-primary") }}
+              </div>
+            </form>
           </div>
-          <button type="submit" class="btn btn-primary btn-block">
-            Submit
-          </button>
-        </form>
+        </div>
         {% endif %}
       </div>
     </div>

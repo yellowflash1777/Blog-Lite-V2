@@ -40,13 +40,19 @@ class User(UserMixin,db.Model):
 
     def unfollow(self, user):
         follow = Follow.query.filter_by(follower_user_id=self.id,
-                            followed_user_id=user.user.id).first()
+                            followed_user_id=user.id).first()
         if follow:
             db.session.delete(follow)
             db.session.commit()
 
     def is_following(self, user):
-         return self.following and any(f.followed_user_id == user.id for f in self.following)
+        # print(any(f.followed_user_id == user.id for f in self.following))
+        # for f in self.following:
+        #     print(f.followed_user_id)
+        #     print(user.id)
+        #     print("ddsds",f.followed_user_id==user.id)   
+               
+        return self.following and any(f.followed_user_id == user.id for f in self.following)
 
     def is_followed_by(self, user):
         return any(follower.follower_user_id == user.id for follower in self.followers)
@@ -66,7 +72,7 @@ class User(UserMixin,db.Model):
 class Post(db.Model):
     __tablename__ = "posts"
     id = db.Column(db.Integer, primary_key=True)
-    user_id= db.Column(db.String, db.ForeignKey(
+    user_id= db.Column(db.Integer, db.ForeignKey(
         "users.id"), nullable=False, index=True)
     title = db.Column(db.String, nullable=False)
     content = db.Column(db.String)
@@ -81,7 +87,7 @@ class Comment(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     post_id = db.Column(db.Integer, db.ForeignKey(
         "posts.id"), nullable=False, index=True)
-    user_id = db.Column(db.String, db.ForeignKey(
+    user_id = db.Column(db.Integer, db.ForeignKey(
         "users.id"), nullable=False, index=True)
     comment = db.Column(db.String, nullable=False)
     timestamp = db.Column(db.DateTime, nullable=False, index=True)
@@ -92,7 +98,7 @@ class Like(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     post_id = db.Column(db.Integer, db.ForeignKey(
         "posts.id"), nullable=False, index=True)
-    user_id = db.Column(db.String, db.ForeignKey(
+    user_id = db.Column(db.Integer, db.ForeignKey(
         "users.id"), nullable=False, index=True)
     timestamp = db.Column(db.DateTime, nullable=False, index=True)
 

@@ -3,7 +3,7 @@ import os
 from flask import abort, render_template, flash, redirect, request, url_for
 from flask_login import current_user, login_user, logout_user, login_required
 from app import app, db
-from .forms import AddPostForm, EditUserForm, LoginForm, RegistrationForm
+from .forms import AddPostForm, CommentForm, EditUserForm, LoginForm, RegistrationForm
 from .models import Comment, Like, Post, User
 from .follow import Follow
 from werkzeug.utils import secure_filename
@@ -184,8 +184,10 @@ def view_post(post_id):
     comments = Comment.query.filter_by(post=post).all()
     # Retrieve the post's likes from the database
     likes = Like.query.filter_by(post=post).all()
+    form=CommentForm()
+    # print(current_user.is_following(post.user))
     # Render the view_post.html template with the post, comments, and likes
-    return render_template('view_post.html', post=post, comments=comments, likes=likes)
+    return render_template('view_post.html', post=post, comments=comments, likes=likes,form=form)
 
 @app.route('/edit_post/<int:post_id>', methods=['GET', 'POST'])
 @login_required
@@ -221,7 +223,9 @@ def delete_post(post_id):
     post = Post.query.get_or_404(post_id)
     
     
-    if post.username != current_user.username:
+    if post.user_id != current_user.id:
+        print(type(post.user_id))
+        print(type(current_user.id))
         abort(403) # Forbidden
     
     # Delete the image file from the file system
@@ -238,6 +242,48 @@ def delete_post(post_id):
     return redirect(url_for('index'))
 
 
+
+@app.route('/like/<int:post_id>', methods=['POST'])
+@login_required
+def like_post(post_id):
+    post = Post.query.get_or_404(post_id)
+    if current_user.is_liking(post):
+        flash('You have already liked this post')
+        return redirect(url_for('view_post', post_id=post.id))
+    like = Like(user_id=current_user.id, post_id=post.id, timestamp=datetime.utcnow())
+    db.session.add(like)
+    db.session.commit()
+    return redirect(url_for('view_post', post_id=post.id))
+
+@app.route('/unlike/<int:post_id>', methods=['POST'])
+@login_required
+def unlike_post(post_id):
+    post = Post.query.get_or_404(post_id)
+    like = Like.query.filter_by(user_id=current_user.id, post_id=post.id).first()
+    if not like:
+        flash('You have not liked this post')
+        return redirect(url_for('view_post', post_id=post.id))
+    db.session.delete(like)
+    db.session.commit()
+    return redirect(url_for('view_post', post_id=post.id))
+
+@app.route('/post/<int:post_id>/comments', methods=['POST'])
+@login_required
+def add_comment(post_id):
+    post = Post.query.get_or_404(post_id)
+    form = CommentForm()
+    if form.validate_on_submit():
+        comment = Comment(
+            post_id=post_id,
+            user_id=current_user.id,
+            comment=form.comment.data,
+            timestamp=datetime.utcnow()
+        )
+        db.session.add(comment)
+        db.session.commit()
+        flash('Your comment has been added!', 'success')
+        return redirect(url_for('view_post', post_id=post_id))
+    return render_template('view_post.html', post=post, form=form)
 
 # @app.route('/add_post', methods=['GET', 'POST'])
 # @login_required
