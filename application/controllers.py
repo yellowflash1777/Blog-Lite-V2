@@ -17,11 +17,18 @@ def index():
         return redirect(url_for('home'))
     else:
         return render_template('index.html')
-
+    
 @app.route('/home')
 @login_required
 def home():
-    return render_template('home.html')
+        # Get IDs of users that the current user is following
+    following_ids = [followed_user.id for followed_user in current_user.following]
+
+        # Retrieve posts made by these users, ordered by timestamp in descending order
+    posts = Post.query.filter(Post.user_id.in_(following_ids)).order_by(Post.timestamp.desc()).all()
+
+    return render_template('home.html', posts=posts)
+    
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -182,14 +189,14 @@ def view_post(post_id):
     # Retrieve the post from the database
     post = Post.query.get_or_404(post_id)
     # Retrieve the post's comments from the database
-    comments = Comment.query.filter_by(post=post).all()
+    # comments = Comment.query.filter_by(post=post).all()
     # Retrieve the post's likes from the database
-    likes = Like.query.filter_by(post=post).all()
+    # likes = Like.query.filter_by(post=post).all()
     form=CommentForm()
     # print(len(post.likes))
     # print(current_user.is_following(post.user))
     # Render the view_post.html template with the post, comments, and likes
-    return render_template('view_post.html', post=post, comments=comments, likes=likes,form=form)
+    return render_template('view_post.html', post=post,form=form)
 
 @app.route('/edit_post/<int:post_id>', methods=['GET', 'POST'])
 @login_required

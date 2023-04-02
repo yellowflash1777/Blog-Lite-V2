@@ -1,8 +1,42 @@
 {% extends "base.html" %}
 
-{% block title %}Home{% endblock %}
-
 {% block content %}
-  <h1>Welcome, {{ current_user.username }}!</h1>
-  <p>You have {{ current_user.number_of_posts }} posts.</p>
+  <div class="container">
+    <div class="row">
+      <div class="col-md-8 mx-auto">
+        {% for post in posts %}
+        <div class="card my-4 shadow-sm">
+          <div class="card-header bg-white py-3">
+            <div class="d-flex align-items-center">
+              <div class="flex-grow-1">
+                <a href="{{ url_for('profile', user_id=post.user.id) }}" class="text-decoration-none">
+                  <h6 class="m-0">{{ post.user.username }}</h6>
+                </a>
+                <small class="text-muted">{{ post.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</small>
+              </div>
+            </div>
+          </div>
+          <img class="card-img-top" style="max-width: 100%;" src="/static/img/uploads/{{ post.image_url }}" alt="{{ post.title }}">
+          <div class="card-body">
+            <h5 class="card-title">{{ post.title }}</h5>
+            <p class="card-text">{{ post.content }}</p>
+          </div>
+          <div class="card-footer bg-white py-2">
+            <div class="d-flex justify-content-between align-items-center">
+              <div>
+                <a href="{{ url_for('view_post', post_id=post.id) }}" class="btn btn-outline-secondary btn-sm">
+                  View Post
+                </a>
+              </div>
+              <div>
+                <span class="text-muted mr-2"><a href="{{ url_for('post_likes', post_id=post.id) }}">{{ post.likes | length }} </a>Likes</span>
+                <span class="text-muted">{{ post.comments|length }} Comments</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
 {% endblock %}
