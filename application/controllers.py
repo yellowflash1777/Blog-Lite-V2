@@ -1,15 +1,22 @@
 from datetime import datetime
 import os
-from flask import abort, render_template, flash, redirect, request, url_for
+from flask_socketio import join_room, leave_room, send, SocketIO
+from flask import abort, render_template, flash, redirect, request, url_for,session
 from flask_login import current_user, login_user, logout_user, login_required
 from app import app, db
 from .forms import AddPostForm, CommentForm, EditUserForm, LoginForm, RegistrationForm
 from .models import Comment, Like, Post, User
 from .follow import Follow
 from werkzeug.utils import secure_filename
+from app import socketio
 
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 MAX_FILE_SIZE = 5 * 1024 * 1024  # 5MB
+
+global_room = "global"
+
+# Store messages for the global room
+global_messages = []
 
 @app.route('/')
 def index():
@@ -22,10 +29,15 @@ def index():
 @login_required
 def home():
         # Get IDs of users that the current user is following
+    session["name"] = current_user.username
     following_ids = [followed_user.id for followed_user in current_user.following]
-
+    print(current_user.username,following_ids)
+    for i in following_ids:
+        print(i)
+        
         # Retrieve posts made by these users, ordered by timestamp in descending order
     posts = Post.query.filter(Post.user_id.in_(following_ids)).order_by(Post.timestamp.desc()).all()
+    print(posts)
 
     return render_template('home.html', posts=posts)
     
@@ -316,4 +328,35 @@ def following(user_id):
     user = User.query.get_or_404(user_id)
     following = user.following
     return render_template('following.html', user=user, following=following)
+
+@app.route("/room")
+def room():
+    name = session.get("name")
+    return render_template("room.html", name=name, messages=global_messages)
+
+@socketio.on("message")
+def message(data):
+    name = session.get("name")
+    content = {
+        "name": name,
+        "message": data["data"]
+    }
+    send(content, room=global_room)
+    global_messages.append(content)
+    print(f"{name} said: {data['data']}")
+
+@socketio.on("connect")
+def connect(auth):
+    name = session.get("name")
+    join_room(global_room)
+    send({"name": name, "message": "has entered the room"}, room=global_room)
+    print(f"{name} joined the global chat room")
+
+@socketio.on("disconnect")
+def disconnect():
+    name = session.get("name")
+    leave_room(global_room)
+    send({"name": name, "message": "has left the room"}, room=global_room)
+    print(f"{name} has left the global chat room")
+
 

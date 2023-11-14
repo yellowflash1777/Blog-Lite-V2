@@ -1,4 +1,5 @@
 import os
+from flask_socketio import SocketIO
 from flask import Flask
 from flask_login import LoginManager
 from flask_restful import Api
@@ -53,6 +54,7 @@ login_manager.login_view = 'login'
 CORS(app, support_credentials=True)
 photos = UploadSet('photos', IMAGES)
 configure_uploads(app, photos)
+socketio = SocketIO(app)
 
 
 @login_manager.user_loader
@@ -70,4 +72,5 @@ api.add_resource(FeedAPI,'/api/feed/<string:username>')
 
 if __name__ == '__main__':
   # Run the Flask app
-  app.run(host='0.0.0.0',port=5000)
+  socketio.run(app, debug=True)
+  
