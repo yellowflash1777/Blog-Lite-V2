@@ -33,7 +33,7 @@ def create_app():
     else:
       print("Staring Local Development")
       app.config.from_object(LocalDevelopmentConfig)
-    app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///'+db_path
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///'+db_path
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     app.config['SECRET_KEY'] = 'your-secret-key-here'
     # app.config['LOGIN_URL'] = '/login'
